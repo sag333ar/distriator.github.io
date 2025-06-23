@@ -46,6 +46,11 @@
   <script src="https://c0f4f41c-2f55-4863-921b-sdk-docs.github.io/cdn/metamask-sdk.js"></script>
   <script src="./bundle.js"></script>
   <script src="flutter.js"></script>
+  <script
+    src="packages/hive_flutter_kit/web/hiveflutterkit.js"
+    type="application/javascript"
+    defer
+  ></script>
 
   <script>
     if ("serviceWorker" in navigator) {
@@ -994,11 +999,16 @@
   }
 }
 
+  // Add JS bridge for Flutter to call scroll message
+  function sendScrollMessageToFlutter() {
+    window.location.reload();
+  }
+
 
   </script>
   <script>
     // The value below is injected by flutter build, do not touch.
-    const serviceWorkerVersion = '"1485259691"';
+    const serviceWorkerVersion = '"3713171128"';
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
