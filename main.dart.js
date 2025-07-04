@@ -125986,7 +125986,7 @@ a1=m.c
 a1.toString
 a5=n.ay
 a5.toString
-h=A.N(["author",a1,"permlink",a5,"allow_votes",!0,"max_accepted_payout","100000.000 HBD","percent_hbd",1e4,"allow_curation_rewards",!0,"extensions",A.c([A.c([0,A.N(["beneficiaries",A.c([A.N(["weight",6000,"account","distriator.bene"],a6,t.C)],t.Mq)],a6,t.te)],t.jl)],t.EY)],a6,t.z)
+h=A.N(["author",a1,"permlink",a5,"allow_votes",!0,"max_accepted_payout","100000.000 HBD","percent_hbd",1e4,"allow_curation_rewards",!0,"extensions",A.c([A.c([0,A.N(["beneficiaries",A.c([A.N(["weight",8000,"account","distriator.bene"],a6,t.C)],t.Mq)],a6,t.te)],t.jl)],t.EY)],a6,t.z)
 a6=n.c
 a6.toString
 g=A.aP(a6,!1,t.fu)
