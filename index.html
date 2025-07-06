@@ -954,7 +954,7 @@
           }
 
           // Extract business name (between "a" and "-")
-          const businessMatch = memo.match(/a\s(.*?)\s-/);
+          const businessMatch = memo.match(/(?<=& adding review of )(.*?)(?= - https:\/\/)/);
           if (businessMatch) {
             businessName = businessMatch[1];
           }
@@ -1008,7 +1008,7 @@
   </script>
   <script>
     // The value below is injected by flutter build, do not touch.
-    const serviceWorkerVersion = '"2890589018"';
+    const serviceWorkerVersion = '"1346429442"';
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
