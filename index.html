@@ -25,31 +25,61 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   <meta name="apple-mobile-web-app-title" content="Hive - Distriator App" />
-  <link rel="apple-touch-icon" href="icons/Icon-192.png" />
+  <link rel="apple-touch-icon" href="favicon.png" />
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png" />
 
   <title>Hive - Distriator App</title>
   <link rel="manifest" href="manifest.json" />
+  <style>
+    .loading-indicator {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #211E32;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 9999;
+    }
+
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-left-color: #1FC676;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <script src="https://unpkg.com/@hiveio/dhive@latest/dist/dhive.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/js-base64@3.7.7/base64.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.1.0/uuidv4.min.js"></script>
-  <script src="https://unpkg.com/@hiveio/hive-js@2.0.8/dist/hive.min.js"></script>
+  <div id="loading_indicator" class="loading-indicator">
+    <img src="favicon.png" alt="Loading..." width="100" /> <br/>
+    <div class="spinner"></div>
+    <p style="text-align: center; color: #1FC676;">Distriator is loading<br>Please wait</p>
+  </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"
     integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://bundle.run/buffer@6.0.3"></script>
-  <script src="https://c0f4f41c-2f55-4863-921b-sdk-docs.github.io/cdn/metamask-sdk.js"></script>
-  <script src="./bundle.js"></script>
   <script src="flutter.js"></script>
   <script
     src="packages/hive_flutter_kit/web/hiveflutterkit.js"
     type="application/javascript"
     defer
+    async
   ></script>
 
   <script>
@@ -73,248 +103,6 @@
         });
     }
   </script>
-
-  <!-- Etherium login specific code -->
-  <script>
-    const Buffer = window.buffer.Buffer; // Add this line to define Buffer
-
-    async function loginWithEthereumChain(hiveusername) {
-      try {
-        const MMSDK = new MetaMaskSDK.MetaMaskSDK({
-          dappMetadata: {
-            name: "Distriator Connect",
-          },
-        });
-
-        let provider;
-        var data = await MMSDK.connect();
-        console.log(data);
-        provider = MMSDK.getProvider();
-        const address = await provider.request({
-          method: "eth_requestAccounts",
-        });
-        if (address.length > 0) {
-          const walletAddress = address[0];
-          const messageHex =
-            "0x" + Buffer.from(hiveusername, "utf8").toString("hex");
-          const signature = await provider.request({
-            method: "personal_sign",
-            params: [messageHex, walletAddress],
-          });
-          return {
-            address: walletAddress,
-            signature: signature,
-          };
-        } else {
-          throw "No account found";
-        }
-      } catch (e) {
-        console.log("ADD ERR", e);
-        throw e;
-      }
-    }
-  </script>
-  <!-- Etherium login specific code -->
-
-  <!-- PolkaDot login specific code -->
-  <script>
-    async function getLoggedInChain(username) {
-      const accounts = await client.database.getAccounts([username]);
-      const account = accounts[0];
-      var jsonMetaData = JSON.parse(account.posting_json_metadata || "{}");
-      var loginMethod =
-        jsonMetaData?.extra?.blockChainData?.loginMethod ?? null;
-      var data = jsonMetaData?.extra?.blockChainData?.data ?? null;
-      if (
-        data != null &&
-        (data["address"] == null || data["signature"] == null)
-      ) {
-        data = null;
-      }
-
-      return replyToNative({
-        data:
-          loginMethod != null && data != null
-            ? {
-              loginMethod: loginMethod,
-              data: data,
-            }
-            : null,
-        valid: true,
-        error: "",
-      });
-    }
-
-    async function loginWithOtherChain(
-      username,
-      loginMethod,
-      isLogin,
-      phrase
-    ) {
-      try {
-        var passPhrase = phrase;
-        let blockChainData;
-        if (isLogin) {
-          try {
-            if (loginMethod == "polkadot") {
-              blockChainData = await loginWithPolkadot();
-            } else if (loginMethod == "metamask") {
-              blockChainData = await loginWithEthereumChain();
-            } else if (loginMethod == "dash") {
-              if (phrase != null) {
-                var dashData = await loginWithDash(phrase, username);
-                blockChainData = {
-                  address: dashData.address,
-                  signature: dashData.signature,
-                };
-              } else {
-                var dashData = await signupWithDash(username);
-                blockChainData = {
-                  address: dashData.address,
-                  signature: dashData.signature,
-                };
-                passPhrase = dashData.mnemonic;
-              }
-            }
-          } catch (e) {
-            return replyToNative({
-              data: null,
-              valid: false,
-              error: e.message,
-            });
-          }
-        }
-
-        var data = isLogin
-          ? { data: blockChainData, loginMethod: loginMethod }
-          : {};
-
-        const customJsonMetadata = {
-          extra: {
-            name: username,
-            blockChainData: data,
-          },
-        };
-
-        return await (async () => {
-          const accounts = await client.database.getAccounts([username]);
-          const account = accounts[0];
-          const updatedMetadata = {
-            ...JSON.parse(account.posting_json_metadata || "{}"),
-            ...customJsonMetadata,
-          };
-
-          const operations = [
-            [
-              "account_update2",
-              {
-                account: username,
-                json_metadata: "",
-                posting_json_metadata: JSON.stringify(updatedMetadata),
-                extensions: [],
-              },
-            ],
-          ];
-
-          return await performOtherChainOperation(
-            "id",
-            operations,
-            username,
-            {
-              data: blockChainData,
-              loginMethod: loginMethod,
-              phrase: passPhrase,
-            }
-          );
-
-          console.log("Metadata updated successfully:", result);
-        })();
-        console.log(`Address is ${blockChainData}`);
-      } catch (e) {
-        console.error("An error occurred:", e);
-        return replyToNative({
-          data: null,
-          valid: false,
-          error: e.message,
-        });
-      }
-    }
-
-    async function validatePostingKey(accountName, postingKey) {
-      try {
-        let messageObj;
-
-        const accounts = await client.database.getAccounts([accountName]);
-        let successObj = { valid: true, error: "" };
-        const pubWif = accounts[0].posting.key_auths[0][0];
-        const pubActive = accounts[0].active.key_auths[0][0];
-        const pubOwner = accounts[0].active.key_auths[0][0];
-        const timestamp = parseInt(new Date().getTime() / 1000);
-        messageObj = {
-          signed_message: { type: "posting", app: "Distriator" },
-          authors: [accountName],
-          timestamp: timestamp,
-        };
-        const proof = JSON.stringify(messageObj);
-        const privateKey = dhive.PrivateKey.fromString(postingKey)
-        const pKey = privateKey.createPublic().toString();
-        const challenge = hive.auth.signMessage(proof, postingKey);
-        messageObj.signatures = [challenge];
-        successObj.data = {
-          proof,
-          challenge,
-          publicKey: pKey,
-          username: accountName,
-          privateKey: postingKey,
-        }
-        if (pKey === pubWif) {
-          successObj.data.type = "posting";
-          return replyToNative(successObj);
-        } else if (pKey === pubActive) {
-          successObj.data.type = "active";
-          return replyToNative(successObj);
-        } else {
-          return replyToNative(
-            { valid: false, error: "Invalid Key supplied", data: null }
-          );
-        }
-
-      } catch (error) {
-        console.log("Error: ", error);
-        return replyToNative(
-          { valid: false, error: error.message, data: null }
-        );
-      }
-    }
-
-
-    async function performOtherChainOperation(
-      id,
-      operations,
-      username,
-      data
-    ) {
-      return new Promise((resolve, reject) => {
-        const keychain = window.hive_keychain;
-        keychain.requestBroadcast(
-          username,
-          operations,
-          "Posting",
-          (response) => {
-            return resolve(
-              replyToNative({
-                id: id,
-                valid: response.success,
-                error: "",
-                data: data,
-              })
-            );
-          }
-        );
-      });
-    }
-  </script>
-  <!-- PolkaDot login specific code -->
 
   <script>
     async function getPermissions() {
@@ -343,437 +131,12 @@
       return result;
     }
 
-    async function getRedirectUriData(identifier, uname) {
-      return new Promise((res) => {
-        let username = uname.toLowerCase();
-        let proof = new Date().toISOString();
-        const auth_data = {
-          app: {
-            name: "hive-Distriator-app",
-            description: "Hive - Distriator - WebApp",
-          },
-          token: undefined,
-          challenge: {
-            key_type: "posting",
-            challenge: proof,
-          },
-        };
-        let auth_key = uuidv4();
-        const data = CryptoJS.AES.encrypt(
-          JSON.stringify(auth_data),
-          auth_key
-        ).toString();
-        const resultData = JSON.stringify({
-          id: identifier,
-          success: true,
-          error: "",
-          data: `${data}|${auth_key}|${proof}`,
-        });
-        res(resultData);
-      });
-    }
-
-    async function getDecryptedHASToken(id, username, data, authKey) {
-      return new Promise((res) => {
-        try {
-          const decryptedData = JSON.parse(
-            CryptoJS.AES.decrypt(data, authKey).toString(CryptoJS.enc.Utf8)
-          );
-          const token = decryptedData.token;
-          const expire = decryptedData.expire;
-          const challenge = decryptedData.challenge.challenge;
-          const pubkey = decryptedData.challenge.pubkey;
-          const resultData = JSON.stringify({
-            id: id,
-            success: true,
-            error: "",
-            data: `${token}|${expire}|${challenge}|${pubkey}`,
-          });
-          res(resultData);
-        } catch (e) {
-          const resultData = JSON.stringify({
-            id: id,
-            success: false,
-            error: e.toString(),
-            data: "",
-          });
-          res(resultData);
-        }
-      });
-    }
-
-    async function getEncryptedData(id, username, data, authKey) {
-      return new Promise((res) => {
-        let jsonString = atob(data);
-        const encData = CryptoJS.AES.encrypt(jsonString, authKey).toString();
-        const resultData = JSON.stringify({
-          id: id,
-          success: true,
-          error: "",
-          data: encData,
-        });
-        res(resultData);
-      });
-    }
   </script>
   <script>
-    function doWeHaveHiveKeychainExtension(id) {
-      const keychain = window.hive_keychain;
-      return new Promise((res) => {
-        const data = {
-          id: id,
-          type: "doWeHaveHiveKeychainExtension",
-          data: keychain !== null && keychain !== undefined,
-          error: "",
-        };
-        res(JSON.stringify(data));
-      });
-    }
-
-    function signInWithHiveKeychain(id, username, message) {
-      const keychain = window.hive_keychain;
-      const dateISO = new Date().toISOString();
-      return new Promise((res) => {
-        keychain.requestSignBuffer(
-          username,
-          dateISO,
-          "Posting",
-          (response) => {
-            if (response.success) {
-              const data = {
-                id: id,
-                type: "signInWithHiveKeychain",
-                data: `${response.result}|${response.data.message}|${response.publicKey}`,
-                error: "",
-              };
-              res(JSON.stringify(data));
-            } else {
-              const data = {
-                id: id,
-                type: "signInWithHiveKeychain",
-                data: "",
-                error: response.error,
-              };
-              res(JSON.stringify(data));
-            }
-          }
-        );
-      });
-    }
-  </script>
-  <script>
-    var client = new dhive.Client([
-      "https://api.hive.blog",
-      "https://api.deathwings.me",
-      "https://hive-api.arcange.eu",
-      "https://hived.emre.sh",
-      "https://api.openhive.network",
-      "https://rpc.ausbit.dev",
-      "https://rpc.mahdiyari.info",
-      "https://hive-api.3speak.tv",
-      "https://anyx.io",
-      "https://techcoderx.com",
-      "https://api.hive.blue",
-      "https://api.c0ff33a.uk",
-      "https://api.pharesim.me",
-      "https://hived.privex.io",
-      "https://hive.roelandp.nl",
-    ]);
-
-    async function getChainProps(identifier) {
-      const props = await client.database.getChainProperties();
-      return replyToNative({
-        id: identifier,
-        type: "getChainProps",
-        data: JSON.stringify(props),
-        error: "",
-      });
-    }
-
-    async function getFileBuffer(file) {
-      return new Promise(function (resolve, reject) {
-        var reader = new FileReader();
-        reader.onload = async () => {
-          const content = window.buffer.Buffer.from(reader.result, "binary");
-          resolve(content);
-        };
-        reader.readAsBinaryString(file);
-      });
-    }
-
-    async function getFileBase64(file) {
-      return new Promise(function (resolve, reject) {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-      });
-    }
-
-    async function openImagePickerForWebAppForHiveAuth(id, accountName) {
-      return new Promise(function (resolve, reject) {
-        var input = document.createElement("input");
-        input.type = "file";
-        input.onchange = (e) => {
-          var file = e.target.files[0];
-          getFileBuffer(file).then((content) => {
-            getFileBase64(file).then((base64) => {
-              const prefix = window.buffer.Buffer.from(
-                "ImageSigningChallenge"
-              );
-              const buf = window.buffer.Buffer.concat([prefix, content]);
-              const bufJsonBase64 = btoa(JSON.stringify(buf));
-              let retResp = JSON.stringify({
-                id: id,
-                valid: true,
-                accountName: accountName,
-                data: {
-                  bufJsonBase64: bufJsonBase64,
-                  base64: base64,
-                  fileName: file.name,
-                },
-              });
-              resolve(retResp);
-            });
-          });
-        };
-        input.click();
-      });
-    }
-
-    async function openImagePickerForWebApp(id, accountName) {
-      return new Promise(function (resolve, reject) {
-        var input = document.createElement("input");
-        input.type = "file";
-        input.onchange = (e) => {
-          var file = e.target.files[0];
-          var reader = new FileReader();
-          reader.onload = async () => {
-            const content = window.buffer.Buffer.from(
-              reader.result,
-              "binary"
-            );
-            const prefix = window.buffer.Buffer.from("ImageSigningChallenge");
-            const buf = window.buffer.Buffer.concat([prefix, content]);
-            window.hive_keychain.requestSignBuffer(
-              accountName,
-              JSON.stringify(buf),
-              "Posting",
-              (response) => {
-                const url = `https://images.hive.blog/${accountName}/${response.result}`;
-                const formData = new FormData();
-                formData.append("file", file, file.name);
-                const xhr = new XMLHttpRequest();
-                xhr.open("POST", url);
-                xhr.onload = () => {
-                  const res = JSON.parse(xhr.responseText);
-                  const uploadUrl = res.url;
-                  let retResp = JSON.stringify({
-                    id: id,
-                    valid: true,
-                    accountName: accountName,
-                    data: uploadUrl,
-                  });
-                  resolve(retResp);
-                };
-                xhr.send(formData);
-              }
-            );
-          };
-          reader.readAsBinaryString(file);
-        };
-        input.click();
-      });
-    }
-
-    async function publishPost(
-      id,
-      dDescription,
-      dTitle,
-      author,
-      permlink,
-      jsonMetaData,
-      hasAuthKey,
-      postingKey
-    ) {
-      let description = dDescription;
-      let title = dTitle;
-      let benefactor_global = [
-        [
-          0,
-          {
-            beneficiaries: [
-              {
-                weight: 8000,
-                account: "distriator.bene",
-              },
-            ],
-          },
-        ],
-      ];
-      let comment_options = [
-        "comment_options",
-        {
-          author: author,
-          permlink: permlink,
-          allow_votes: true,
-          max_accepted_payout: "100000.000 SBD",
-          percent_hbd: 10000,
-          allow_curation_rewards: true,
-          extensions: benefactor_global,
-        },
-      ];
-      const operations = [];
-      operations.push([
-        "comment",
-        {
-          parent_author: "",
-          parent_permlink: "hive-106130",
-          author: author,
-          permlink: permlink,
-          title: title.substr(0, 254),
-          body: description,
-          json_metadata: jsonMetaData,
-        },
-      ]);
-      operations.push(comment_options);
-      console.log(`operations are ${JSON.stringify(operations)}`);
-      return await performOperations(
-        id,
-        operations,
-        "postVideo",
-        author,
-        hasAuthKey,
-        postingKey
-      );
-    }
-
-    async function performOperations(
-      id,
-      operations,
-      operationName,
-      username,
-      hasAuthKey,
-      postingKey
-    ) {
-      return new Promise((resolve, reject) => {
-        if (
-          hasAuthKey !== null &&
-          hasAuthKey !== undefined &&
-          hasAuthKey.length > 0
-        ) {
-          const sign_data = {
-            key_type: "posting",
-            ops: operations,
-            broadcast: true,
-            nonce: Date.now(),
-          };
-          const data = CryptoJS.AES.encrypt(
-            JSON.stringify(sign_data),
-            hasAuthKey
-          ).toString();
-          return resolve(
-            replyToNative({
-              id: id,
-              type: operationName,
-              valid: true,
-              username: username,
-              error: "",
-              data: data,
-            })
-          );
-        } else if (postingKey != null) {
-          async function tryPublish(operations, key) {
-            try {
-              return await client.broadcast.sendOperations(
-                operations,
-                dhive.PrivateKey.fromString(key)
-              );
-            } catch (e) {
-              throw e;
-            }
-          }
-          tryPublish(operations, postingKey)
-            .then((result) => {
-              return resolve(replyToNative({
-                id: id,
-                type: operationName,
-                valid: true,
-                username: username,
-                error: "",
-                data: result,
-              }));
-            })
-            .catch((error) => {
-              console.error(error);
-              return resolve(replyToNative({
-                id: id,
-                type: operationName,
-                valid: false,
-                error: error.message,
-                username: username,
-                data: "",
-              }));
-            });
-        } else {
-          const keychain = window.hive_keychain;
-          keychain.requestBroadcast(
-            username,
-            operations,
-            "Posting",
-            (response) => {
-              console.log(response);
-              console.log(response.error);
-              return resolve(
-                replyToNative({
-                  id: id,
-                  type: operationName,
-                  valid: response.success,
-                  username: username,
-                  error: response.error,
-                  data: response.data,
-                })
-              );
-            }
-          );
-        }
-      });
-    }
-
-    async function keychainTransaction(
-      identifier,
-      ops,
-      username,
-      operationName
-    ) {
-      return new Promise((resolve, reject) => {
-        const keychain = window.hive_keychain;
-        keychain.requestBroadcast(
-          username,
-          JSON.parse(ops),
-          "Active",
-          (response) => {
-            console.log(response);
-            console.log(response.error);
-            return resolve(
-              replyToNative({
-                id: identifier,
-                type: operationName,
-                valid: response.success,
-                username: username,
-                error: response.error,
-                data: response.data,
-              })
-            );
-          }
-        );
-      });
-    }
-
     async function getAccountHistory(accountName, startId, limit, filters) {
-      const op = dhive.utils.operationOrders;
-      const operationsBitmask = dhive.utils.makeBitMaskFilter([op.transfer]);
-      const response = await client.database.getAccountHistory(
+      const op = window.dhiveUtils.operationOrders;
+      const operationsBitmask = window.dhiveUtils.makeBitMaskFilter([op.transfer]);
+      const response = await window.dhiveClient.database.getAccountHistory(
         accountName,
         startId,
         limit,
@@ -792,9 +155,9 @@
       limit,
       nameOfBusinesses
     ) {
-      const op = dhive.utils.operationOrders;
-      const operationsBitmask = dhive.utils.makeBitMaskFilter([op.transfer]);
-      let response = await client.database.getAccountHistory(
+      const op = window.dhiveUtils.operationOrders;
+      const operationsBitmask = window.dhiveUtils.makeBitMaskFilter([op.transfer]);
+      let response = await window.dhiveClient.database.getAccountHistory(
         accountName,
         startId,
         limit,
@@ -831,52 +194,6 @@
       document.head.appendChild(script);
     }
 
-    function b64uEnc(str) {
-      const b64uLookup = {
-        "/": "_",
-        _: "/",
-        "+": "-",
-        "-": "+",
-        "=": ".",
-        ".": "=",
-      };
-      return window.Base64.encode(str).replace(
-        /(\+|\/|=)/g,
-        (m) => b64uLookup[m]
-      );
-    }
-
-    async function getImageUploadProofWithPostingKey(account, key) {
-      const timestamp = new Date().getTime() / 1000;
-      const messageObj = {
-        signed_message: { type: "code", app: "ecency.app" },
-        authors: [account],
-        timestamp: timestamp,
-      };
-      const message = JSON.stringify(messageObj);
-      const signature = hive.auth.signMessage(message, key);
-      messageObj.signatures = [signature];
-      const result = b64uEnc(JSON.stringify(messageObj));
-      return result;
-    }
-
-    async function getClaimDataFromJavaScript(account, duration, key) {
-      try {
-        var result = await getClaimData(account, duration, key);
-        return replyToNative({
-          data: result,
-          valid: true,
-          error: "",
-        });
-      } catch (e) {
-        return replyToNative({
-          data: null,
-          valid: false,
-          error: e.message,
-        });
-      }
-    }
-
     function replyToNative(result) {
       return JSON.stringify(result);
     }
@@ -890,7 +207,10 @@
         },
         onEntrypointLoaded: function (engineInitializer) {
           engineInitializer.initializeEngine().then(function (appRunner) {
-            appRunner.runApp();
+            appRunner.runApp().then(function (app) {
+              // Hide the loading indicator
+              document.getElementById("loading_indicator").style.display = "none";
+            });
           });
         },
       });
@@ -910,7 +230,7 @@
 
     while (hasMoreData) {
       // Fetch account history with pagination
-      const history = await client.database.call('get_account_history', [username, lastId, limit]);
+      const history = await window.dhiveClient.database.call('get_account_history', [username, lastId, limit]);
       
       if (history.length <= 1) {
         // No more data to fetch
@@ -1008,11 +328,9 @@
   </script>
   <script>
     // The value below is injected by flutter build, do not touch.
-    const serviceWorkerVersion = '"1575204288"';
+    const serviceWorkerVersion = '"4191668341"';
   </script>
-  <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
-  <script src="https://unpkg.com/pica/dist/pica.min.js"></script>
 </body>
 
 </html>
