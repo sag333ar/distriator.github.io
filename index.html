@@ -82,7 +82,7 @@
     async
   ></script>
 
-  <script>
+  <!-- <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("flutter_service_worker.js")
@@ -102,7 +102,7 @@
           });
         });
     }
-  </script>
+  </script> -->
 
   <script>
     async function getPermissions() {
@@ -320,15 +320,15 @@
 }
 
   // Add JS bridge for Flutter to call scroll message
-  function sendScrollMessageToFlutter() {
-    window.location.reload();
-  }
+  // function sendScrollMessageToFlutter() {
+  //   window.location.reload();
+  // }
 
 
   </script>
   <script>
     // The value below is injected by flutter build, do not touch.
-    const serviceWorkerVersion = '"4191668341"';
+    const serviceWorkerVersion = '"1649827914"';
   </script>
   <script src="flutter.js" defer></script>
 </body>
