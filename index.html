@@ -202,9 +202,6 @@
     window.addEventListener("load", function (ev) {
       // Download main.dart.js
       _flutter.loader.loadEntrypoint({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        },
         onEntrypointLoaded: function (engineInitializer) {
           engineInitializer.initializeEngine().then(function (appRunner) {
             appRunner.runApp().then(function (app) {
@@ -320,15 +317,11 @@
 }
 
   // Add JS bridge for Flutter to call scroll message
-  // function sendScrollMessageToFlutter() {
-  //   window.location.reload();
-  // }
+  function sendScrollMessageToFlutter() {
+    window.location.reload();
+  }
 
 
-  </script>
-  <script>
-    // The value below is injected by flutter build, do not touch.
-    const serviceWorkerVersion = '"1649827914"';
   </script>
   <script src="flutter.js" defer></script>
 </body>
