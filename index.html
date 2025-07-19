@@ -321,6 +321,21 @@
     window.location.reload();
   }
 
+  async function distriatorBroadcastOperationWithPrivatePostingKey(operations, privateKey) {
+    console.log(`Dhive is ${window.dhive}`);
+    console.log(`Dhive PK is ${window.dhive.PrivateKey}`);
+    const postingKey = window.dhive.PrivateKey.fromString(privateKey);
+    // const jsonString = atob(operations);
+    operations = JSON.parse(operations);
+    try {
+      const result = await window.dhiveClient.broadcast.sendOperations(operations, postingKey);
+      console.log('✅ Broadcast successful:', result);
+      return JSON.stringify(result);
+    } catch (error) {
+      console.error('❌ Broadcast failed:', error);
+      return JSON.stringify({ error: error.toString() });
+    }
+  }
 
   </script>
   <script src="flutter.js" defer></script>
