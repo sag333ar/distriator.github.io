@@ -322,8 +322,6 @@
   }
 
   async function distriatorBroadcastOperationWithPrivatePostingKey(operations, privateKey) {
-    console.log(`Dhive is ${window.dhive}`);
-    console.log(`Dhive PK is ${window.dhive.PrivateKey}`);
     const postingKey = window.dhive.PrivateKey.fromString(privateKey);
     // const jsonString = atob(operations);
     operations = JSON.parse(operations);
