@@ -120922,7 +120922,7 @@ au6(){if(this.c!=null)this.L(new A.bfh(this))},
 F(a){var s,r=null
 if(this.d)return B.I
 s=t.p
-return A.bk(r,A.be(A.c([A.fc(B.Yx,B.il,r,20),B.my,A.cC(A.aO(A.c([A.af("Please start using our new version https://cashback.distriator.com",r,r,r,r,r,r,r,A.bJ(r,r,B.uY,r,r,r,r,r,r,r,r,14,r,r,B.af,r,r,!0,r,r,r,r,r,r,r,r),r,r,r),B.aGK,A.af("After 5-Oct-2025, new version will be on distriator.com",r,r,r,r,r,r,r,A.bJ(r,r,B.il,r,r,r,r,r,r,r,r,13,r,r,r,r,r,!0,r,r,r,r,r,r,r,r),r,r,r)],s),B.a3,r,B.o,B.T),1),B.my,A.eb(r,A.fc(B.kZ,B.il,r,20),B.y,!1,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,this.gau5(),r,r,r,r,r,r,!1,B.az)],s),B.n,B.o,B.p,r),B.q,r,r,new A.c3(B.uV,r,new A.er(B.u,B.u,new A.bg(B.ur,1,B.F,-1),B.u),r,r,r,B.S),r,r,r,r,B.Wn,r,r,1/0)}}
+return A.bk(r,A.be(A.c([A.fc(B.Yx,B.il,r,20),B.my,A.cC(A.aO(A.c([A.af("Please start using our new version https://cashback.distriator.com",r,r,r,r,r,r,r,A.bJ(r,r,B.uY,r,r,r,r,r,r,r,r,14,r,r,B.af,r,r,!0,r,r,r,r,r,r,r,r),r,r,r),B.aGK,A.af("After 25-Oct-2025, new version will be on distriator.com",r,r,r,r,r,r,r,A.bJ(r,r,B.il,r,r,r,r,r,r,r,r,13,r,r,r,r,r,!0,r,r,r,r,r,r,r,r),r,r,r)],s),B.a3,r,B.o,B.T),1),B.my,A.eb(r,A.fc(B.kZ,B.il,r,20),B.y,!1,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,this.gau5(),r,r,r,r,r,r,!1,B.az)],s),B.n,B.o,B.p,r),B.q,r,r,new A.c3(B.uV,r,new A.er(B.u,B.u,new A.bg(B.ur,1,B.F,-1),B.u),r,r,r,B.S),r,r,r,r,B.Wn,r,r,1/0)}}
 A.bfh.prototype={
 $0(){this.a.d=!0},
 $S:0}
